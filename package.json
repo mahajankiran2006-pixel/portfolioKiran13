@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "start": "concurrently \"Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force; cd server && npm start\" \"Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force; cd client && npm start\"",
     "install-all": "npm install && cd client && npm install && cd ../server && npm install",
-    "build": "CI=false npm run build",
+      "build": "npm install --prefix client && CI=false npm run build --prefix client",
     "deploy": "npm run build && firebase deploy --only hosting",
     "deploy-rules": "firebase deploy --only firestore:rules",
     "deploy-all": "npm run build && firebase deploy"
