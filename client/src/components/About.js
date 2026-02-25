@@ -65,15 +65,15 @@ const About = () => {
           </p>
           <div className="about-stats">
             <div className="stat">
-              <h4>5+</h4>
-              <p>Years Experience</p>
+              <h4>6 Months</h4>
+              <p>Months Experience</p>
             </div>
             <div className="stat">
-              <h4>50+</h4>
+              <h4>5+</h4>
               <p>Projects Completed</p>
             </div>
             <div className="stat">
-              <h4>30+</h4>
+              <h4>3</h4>
               <p>Happy Clients</p>
             </div>
           </div>

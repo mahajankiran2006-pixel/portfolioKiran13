@@ -9,20 +9,20 @@ const Testimonials = () => {
 
   const testimonials = [
     {
-      name: 'John Smith',
-      role: 'CEO, Tech Startup',
+      name: 'Laukesh Sali',
+      role: 'Freelancer',
       text: 'Kiran delivered exceptional work on our web application with strong attention to security. His knowledge of both development and cybersecurity best practices exceeded our expectations.',
       rating: 5
     },
     {
-      name: 'Sarah Johnson',
-      role: 'Product Manager',
+      name: 'Vipul Mahajan',
+      role: 'Freelancer',
       text: 'Working with Kiran was a pleasure. He not only built a beautiful application but also ensured it was secure and protected against common vulnerabilities.',
       rating: 5
     },
     {
-      name: 'Michael Chen',
-      role: 'CTO, Digital Agency',
+      name: 'Yash Suryavanshi',
+      role: 'Freelancer',
       text: 'Outstanding developer with great security awareness. Kiran implemented proper authentication, data encryption, and secure coding practices throughout the project.',
       rating: 5
     }

@@ -9,11 +9,11 @@ const SkillsCinematic = () => {
 
   const skills = [
     { name: 'HTML/CSS', level: 95, category: 'Frontend' },
-    { name: 'JavaScript', level: 90, category: 'Frontend' },
-    { name: 'React', level: 85, category: 'Frontend' },
-    { name: 'Node.js', level: 80, category: 'Backend' },
-    { name: 'Express', level: 80, category: 'Backend' },
-    { name: 'MongoDB', level: 75, category: 'Database' },
+    { name: 'JavaScript', level: 50, category: 'Frontend' },
+    { name: 'React', level: 50, category: 'Frontend' },
+    { name: 'Node.js', level: 60, category: 'Backend' },
+    { name: 'Express', level: 70, category: 'Backend' },
+    { name: 'MongoDB', level: 40, category: 'Database' },
     { name: 'Firebase', level: 85, category: 'Backend' },
     { name: 'Git', level: 90, category: 'Tools' },
     { name: 'Network Security', level: 60, category: 'Security' },

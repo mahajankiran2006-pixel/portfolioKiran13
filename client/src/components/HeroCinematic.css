@@ -89,6 +89,7 @@
   position: relative;
   width: 400px;
   height: 400px;
+  flex-shrink: 0;
 }
 
 .frame-glow {
@@ -121,6 +122,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 .corner {
@@ -173,10 +175,12 @@
 
 .profile-img-cinematic {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center 40%;
   border-radius: 50%;
   border: 4px solid rgba(255, 70, 85, 0.3);
   box-shadow: 
@@ -417,32 +421,130 @@
 }
 
 @media (max-width: 768px) {
+  .hero-cinematic {
+    padding: 80px 15px 40px;
+  }
+
+  .hero-content-cinematic {
+    gap: 40px;
+  }
+
+  .profile-section {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .profile-frame {
+    width: 100%;
+    max-width: 300px;
+    height: 0;
+    padding-bottom: 100%;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .frame-glow,
+  .frame-corners,
+  .profile-img-cinematic {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .profile-img-cinematic {
+    object-fit: cover;
+    object-position: center 40%;
+    border-radius: 50%;
+  }
+
+  .corner {
+    width: 35px;
+    height: 35px;
+    border-width: 2px;
+  }
+
   .hero-name {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    text-align: center;
+  }
+
+  .name-glow {
+    word-break: keep-all;
+    white-space: nowrap;
   }
 
   .title-container {
     flex-direction: column;
     gap: 10px;
+    min-height: auto;
   }
 
   .hero-title-animated {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     min-width: auto;
+    text-align: center;
   }
 
-  .profile-frame {
-    width: 250px;
-    height: 250px;
+  .title-bracket {
+    font-size: 2rem;
+  }
+
+  .hero-description-cinematic {
+    font-size: 1rem;
+    padding: 0 10px;
   }
 
   .hero-actions {
     flex-direction: column;
     width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
   }
 
   .btn-cinematic {
     width: 100%;
     text-align: center;
+    padding: 15px 30px;
+    font-size: 0.9rem;
+  }
+
+  .social-links-hero {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-section {
+    max-width: 250px;
+  }
+
+  .profile-frame {
+    max-width: 250px;
+  }
+
+  .hero-name {
+    font-size: 1.8rem;
+  }
+
+  .corner {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-section {
+    max-width: 220px;
+  }
+
+  .profile-frame {
+    max-width: 220px;
+  }
+
+  .hero-name {
+    font-size: 1.6rem;
   }
 }

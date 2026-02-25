@@ -8,27 +8,27 @@ const Certifications = () => {
 
   const certifications = [
     {
-      title: 'Web Development Bootcamp',
-      issuer: 'Udemy / Coursera',
-      date: '2023',
+      title: 'Bechelor of Computer Application',
+      issuer: 'Vimal Tormal Poddar College',
+      date: '2026',
       icon: '💻'
     },
     {
       title: 'Cybersecurity Fundamentals',
-      issuer: 'Online Learning Platform',
-      date: '2023',
+      issuer: 'Try Hack me',
+      date: '2026',
       icon: '🔐'
     },
     {
       title: 'Ethical Hacking Basics',
-      issuer: 'Cybersecurity Course',
-      date: '2023',
+      issuer: 'Self Study',
+      date: '2026',
       icon: '🛡️'
     },
     {
-      title: 'Network Security Essentials',
-      issuer: 'Security Training',
-      date: '2022',
+      title: 'Networking Basics ',
+      issuer: 'Seld Study',
+      date: '2026',
       icon: '🌐'
     }
   ];
