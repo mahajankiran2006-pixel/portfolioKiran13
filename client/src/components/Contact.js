@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './Contact.css';
 
 const Contact = () => {
@@ -25,17 +26,27 @@ const Contact = () => {
     setStatus({ type: '', message: '' });
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || '';
-      await axios.post(`${apiUrl}/api/contact`, formData);
+      await addDoc(collection(db, "contacts"), {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        createdAt: serverTimestamp(),
+      });
+
       setStatus({
         type: 'success',
-        message: 'Thank you! Your message has been sent successfully.'
+        message: 'Message Sent Successfully ✅'
       });
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+      });
     } catch (error) {
+      console.error(error);
       setStatus({
         type: 'error',
-        message: 'Oops! Something went wrong. Please try again.'
+        message: 'Error sending message ❌'
       });
     } finally {
       setLoading(false);
