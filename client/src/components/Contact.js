@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 import './Contact.css';
 
 const Contact = () => {
@@ -26,6 +27,7 @@ const Contact = () => {
     setStatus({ type: '', message: '' });
 
     try {
+      // ✅ 1️⃣ Firebase me save karo
       await addDoc(collection(db, "contacts"), {
         name: formData.name,
         email: formData.email,
@@ -33,9 +35,21 @@ const Contact = () => {
         createdAt: serverTimestamp(),
       });
 
+      // ✅ 2️⃣ EmailJS se mail bhejo
+      await emailjs.send(
+        "service_ult146e",      // Your Service ID
+        "template_1p4zdaq",     // Your Template ID
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        },
+        "ttLa9fgZN6uzO4lP-"     // Your Public Key
+      );
+
       setStatus({
         type: 'success',
-        message: 'Message Sent Successfully ✅'
+        message: 'Message Sent Successfully 🚀'
       });
       setFormData({
         name: "",
@@ -43,10 +57,10 @@ const Contact = () => {
         message: "",
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error:", error);
       setStatus({
         type: 'error',
-        message: 'Error sending message ❌'
+        message: 'Something went wrong ❌'
       });
     } finally {
       setLoading(false);
@@ -82,7 +96,7 @@ const Contact = () => {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
-              <span>Your City, Country</span>
+              <span>Surat, Gujarat</span>
             </div>
           </div>
         </motion.div>
