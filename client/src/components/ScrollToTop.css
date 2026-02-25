@@ -1,0 +1,49 @@
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: 2px solid rgba(255, 70, 85, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(255, 70, 85, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+  animation: energy-pulse 2s ease-in-out infinite;
+}
+
+@keyframes energy-pulse {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(255, 70, 85, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(255, 70, 85, 0.8);
+  }
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-8px) rotate(360deg);
+  box-shadow: 0 0 60px rgba(255, 70, 85, 1);
+}
+
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+  }
+}
