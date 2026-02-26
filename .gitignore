@@ -36,3 +36,9 @@ firestore-debug.log
 # Testing
 coverage/
 .nyc_output/
+
+#gitignore
+.env
+.env.local
+.env.production
+.env.development
