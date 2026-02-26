@@ -28,14 +28,17 @@ const Contact = () => {
 
     try {
       // ✅ 1️⃣ Firebase me save karo
+      console.log('Saving to Firebase...');
       await addDoc(collection(db, "contacts"), {
         name: formData.name,
         email: formData.email,
         message: formData.message,
         createdAt: serverTimestamp(),
       });
+      console.log('Firebase save successful!');
 
       // ✅ 2️⃣ EmailJS se mail bhejo
+      console.log('Sending email via EmailJS...');
       await emailjs.send(
         "service_ult146e",      // Your Service ID
         "template_1p4zdaq",     // Your Template ID
@@ -44,8 +47,9 @@ const Contact = () => {
           email: formData.email,
           message: formData.message,
         },
-        "ttLa9fgZN6uzO4lP-"     // Your Public Key
+        "l1CJPw936ZRwh0Xum"     // Your Public Key
       );
+      console.log('EmailJS send successful!');
 
       setStatus({
         type: 'success',
@@ -57,10 +61,24 @@ const Contact = () => {
         message: "",
       });
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Detailed Error:", error);
+      console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
+      
+      let errorMessage = 'Something went wrong ❌';
+      
+      // Better error messages
+      if (error.code === 'permission-denied') {
+        errorMessage = 'Firebase permission denied. Please check Firestore rules.';
+      } else if (error.message && error.message.includes('Firebase')) {
+        errorMessage = 'Firebase connection error. Please try again.';
+      } else if (error.message && error.message.includes('EmailJS')) {
+        errorMessage = 'Email service error. Message saved but email not sent.';
+      }
+      
       setStatus({
         type: 'error',
-        message: 'Something went wrong ❌'
+        message: errorMessage
       });
     } finally {
       setLoading(false);
