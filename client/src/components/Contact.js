@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -9,71 +9,209 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
+    company: '' // Honeypot field
   });
+  const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const lastSubmitTime = useRef(0);
+
+  // Validation functions
+  const validateName = (name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return 'Name is required';
+    if (trimmed.length < 2) return 'Name must be at least 2 characters';
+    if (trimmed.length > 100) return 'Name is too long';
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    const trimmed = email.trim();
+    if (!trimmed) return 'Email is required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) return 'Please enter a valid email';
+    if (trimmed.length > 254) return 'Email is too long';
+    return '';
+  };
+
+  const validateMessage = (message) => {
+    const trimmed = message.trim();
+    if (!trimmed) return 'Message is required';
+    if (trimmed.length < 10) return 'Message must be at least 10 characters';
+    if (trimmed.length > 1000) return 'Message must not exceed 1000 characters';
+    return '';
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    let error = '';
+
+    switch (name) {
+      case 'name':
+        error = validateName(value);
+        break;
+      case 'email':
+        error = validateEmail(value);
+        break;
+      case 'message':
+        error = validateMessage(value);
+        break;
+      default:
+        break;
+    }
+
+    if (error) {
+      setErrors({
+        ...errors,
+        [name]: error
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const nameError = validateName(formData.name);
+    const emailError = validateEmail(formData.email);
+    const messageError = validateMessage(formData.message);
+
+    const newErrors = {
+      name: nameError,
+      email: emailError,
+      message: messageError
+    };
+
+    setErrors(newErrors);
+    return !nameError && !emailError && !messageError;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    
+    // Clear previous status
     setStatus({ type: '', message: '' });
 
-    try {
-      // ✅ 1️⃣ Firebase me save karo
-      console.log('Saving to Firebase...');
-      await addDoc(collection(db, "contacts"), {
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        createdAt: serverTimestamp(),
+    // 🔒 Anti-spam: Check honeypot field
+    if (formData.company) {
+      console.warn('Bot detected - honeypot field filled');
+      setStatus({
+        type: 'error',
+        message: 'Submission blocked. Please try again.'
       });
-      console.log('Firebase save successful!');
+      return;
+    }
 
-      // ✅ 2️⃣ EmailJS se mail bhejo
+    // 🔒 Anti-spam: Rate limiting (10 seconds cooldown)
+    const now = Date.now();
+    const timeSinceLastSubmit = now - lastSubmitTime.current;
+    if (timeSinceLastSubmit < 10000) {
+      const waitTime = Math.ceil((10000 - timeSinceLastSubmit) / 1000);
+      setStatus({
+        type: 'error',
+        message: `Please wait ${waitTime} seconds before submitting again.`
+      });
+      return;
+    }
+
+    // Validate form
+    if (!validateForm()) {
+      setStatus({
+        type: 'error',
+        message: 'Please fix the errors above.'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Sanitize inputs
+      const sanitizedData = {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        message: formData.message.trim()
+      };
+
+      // ✅ 1️⃣ Save to Firebase Firestore
+      console.log('Saving to Firebase...');
+      const docRef = await addDoc(collection(db, "contacts"), {
+        name: sanitizedData.name,
+        email: sanitizedData.email,
+        message: sanitizedData.message,
+        createdAt: serverTimestamp(),
+        source: 'portfolio',
+        ipHint: navigator.userAgent.substring(0, 100) // Lightweight fingerprint
+      });
+      console.log('Firebase save successful! Doc ID:', docRef.id);
+
+      // ✅ 2️⃣ Send email notification via EmailJS
       console.log('Sending email via EmailJS...');
-      await emailjs.send(
-        "service_ult146e",      // Your Service ID
-        "template_1p4zdaq",     // Your Template ID
-        {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-        },
-        "l1CJPw936ZRwh0Xum"     // Your Public Key
-      );
-      console.log('EmailJS send successful!');
+      try {
+        await emailjs.send(
+          process.env.REACT_APP_EMAILJS_SERVICE_ID,
+          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+          {
+            name: sanitizedData.name,
+            email: sanitizedData.email,
+            message: sanitizedData.message,
+            timestamp: new Date().toLocaleString()
+          },
+          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+        );
+        console.log('EmailJS send successful!');
+      } catch (emailError) {
+        console.error('EmailJS error:', emailError);
+        // Don't fail the whole submission if email fails
+        console.warn('Email notification failed, but message was saved to Firebase');
+      }
 
+      // Update last submit time
+      lastSubmitTime.current = now;
+
+      // Show success message
       setStatus({
         type: 'success',
-        message: 'Message Sent Successfully 🚀'
+        message: 'Message sent successfully! 🚀 I\'ll get back to you soon.'
       });
+
+      // Reset form
       setFormData({
-        name: "",
-        email: "",
-        message: "",
+        name: '',
+        email: '',
+        message: '',
+        company: ''
       });
+      setErrors({});
+
     } catch (error) {
-      console.error("Detailed Error:", error);
+      console.error("Submission Error:", error);
       console.error("Error message:", error.message);
       console.error("Error code:", error.code);
       
-      let errorMessage = 'Something went wrong ❌';
+      let errorMessage = 'Something went wrong. Please try again later.';
       
-      // Better error messages
+      // Specific error messages
       if (error.code === 'permission-denied') {
-        errorMessage = 'Firebase permission denied. Please check Firestore rules.';
-      } else if (error.message && error.message.includes('Firebase')) {
-        errorMessage = 'Firebase connection error. Please try again.';
-      } else if (error.message && error.message.includes('EmailJS')) {
-        errorMessage = 'Email service error. Message saved but email not sent.';
+        errorMessage = 'Unable to submit. Please contact me directly at mahajankiran2006@gmail.com';
+      } else if (error.code === 'unavailable') {
+        errorMessage = 'Service temporarily unavailable. Please try again in a moment.';
+      } else if (error.message && error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
       }
       
       setStatus({
@@ -127,43 +265,89 @@ const Contact = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
+          {/* Honeypot field - hidden from users, catches bots */}
+          <input
+            type="text"
+            name="company"
+            value={formData.company}
+            onChange={handleChange}
+            style={{ display: 'none' }}
+            tabIndex="-1"
+            autoComplete="off"
+          />
+
           <div className="form-group">
             <input
               type="text"
               name="name"
-              placeholder="Your Name"
+              placeholder="Your Name *"
               value={formData.name}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
+              className={errors.name ? 'error' : ''}
+              disabled={loading}
+              maxLength="100"
             />
+            {errors.name && <span className="error-message">{errors.name}</span>}
           </div>
+
           <div className="form-group">
             <input
               type="email"
               name="email"
-              placeholder="Your Email"
+              placeholder="Your Email *"
               value={formData.email}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
+              className={errors.email ? 'error' : ''}
+              disabled={loading}
+              maxLength="254"
             />
+            {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
+
           <div className="form-group">
             <textarea
               name="message"
-              placeholder="Your Message"
+              placeholder="Your Message * (10-1000 characters)"
               rows="5"
               value={formData.message}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
+              className={errors.message ? 'error' : ''}
+              disabled={loading}
+              maxLength="1000"
             ></textarea>
-          </div>
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? 'Sending...' : 'Send Message'}
-          </button>
-          {status.message && (
-            <div className={`status-message ${status.type}`}>
-              {status.message}
+            <div className="char-count">
+              {formData.message.trim().length}/1000
             </div>
+            {errors.message && <span className="error-message">{errors.message}</span>}
+          </div>
+
+          <button 
+            type="submit" 
+            className="submit-btn" 
+            disabled={loading || Object.values(errors).some(err => err)}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Sending...
+              </>
+            ) : (
+              'Send Message'
+            )}
+          </button>
+
+          {status.message && (
+            <motion.div 
+              className={`status-message ${status.type}`}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {status.message}
+            </motion.div>
           )}
         </motion.form>
       </div>

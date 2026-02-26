@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /contacts/{docId} {
+      // Allow creating new contact messages with validation
+      allow create: if
+        // Check all required fields exist
+        request.resource.data.keys().hasAll(['name', 'email', 'message', 'createdAt', 'source']) &&
+        
+        // Validate field types
+        request.resource.data.name is string &&
+        request.resource.data.email is string &&
+        request.resource.data.message is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.source is string &&
+        
+        // Validate field lengths
+        request.resource.data.name.size() >= 2 &&
+        request.resource.data.name.size() <= 100 &&
+        request.resource.data.email.size() >= 5 &&
+        request.resource.data.email.size() <= 254 &&
+        request.resource.data.message.size() >= 10 &&
+        request.resource.data.message.size() <= 1000 &&
+        
+        // Validate email format (basic check)
+        request.resource.data.email.matches('.*@.*\\..*');
+      
+      // Deny all read, update, and delete operations
+      allow read, update, delete: if false;
+    }
+  }
+}
