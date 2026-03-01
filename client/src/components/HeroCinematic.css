@@ -467,13 +467,16 @@
   }
 
   .hero-name {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 5.5vw, 2.5rem);
     text-align: center;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .name-glow {
     word-break: keep-all;
     white-space: nowrap;
+    display: inline-block;
   }
 
   .title-container {
@@ -526,12 +529,20 @@
   }
 
   .hero-name {
-    font-size: 1.8rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
   }
 
   .corner {
     width: 30px;
     height: 30px;
+  }
+
+  .hero-title-animated {
+    font-size: 1.1rem;
+  }
+
+  .hero-description-cinematic {
+    font-size: 0.95rem;
   }
 }
 
@@ -545,6 +556,14 @@
   }
 
   .hero-name {
-    font-size: 1.6rem;
+    font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+  }
+
+  .hero-title-animated {
+    font-size: 1rem;
+  }
+
+  .hero-description-cinematic {
+    font-size: 0.9rem;
   }
 }
