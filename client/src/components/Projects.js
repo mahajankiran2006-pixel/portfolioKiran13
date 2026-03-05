@@ -27,6 +27,13 @@ const Projects = () => {
       tech: ['HTML', 'CSS', 'JavaScript', 'E-Commerce', 'Web Development'],
       github: 'https://github.com/mahajankiran2006-pixel/Ecommerce-website.git',
       image: 'project3'
+    },
+    {
+      title: "Gym-Management-Website",
+      description: 'A modern gym website built with Node.js featuring responsive design, membership information, workout sections, and user-friendly navigation.',
+      tech:['HTML','CSS','JavaScript','NodeJS','Gym-Website','Full-stack','MongoDB'],
+      github: 'https://github.com/mahajankiran2006-pixel/gym_project.git',
+      image: 'project4'
     }
   ];
 
